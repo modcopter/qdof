@@ -10,6 +10,11 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.logging.Logger;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+
 public class MavClient extends Thread {
     private String m_serverName;
     private int m_serverPort;
@@ -61,9 +66,13 @@ public class MavClient extends Thread {
      *            Eine JSON-Encodierte MAVLink Nachricht
      */
     public void sendMessage(String json) {
+    	log.info(json);
 		try {
-		    PrintWriter writer = new PrintWriter(m_clientSocket.getOutputStream());					// Printwriter vereinfachen die Ausgabe in Streams!
-		    writer.print(json);
+			PrintWriter printer = new PrintWriter(m_clientSocket.getOutputStream(), true);
+			Gson formatter = new Gson();
+			JsonParser p = new JsonParser();
+			
+			printer.println(formatter.toJson(p.parse(json)));
 		} catch (IOException e) {
 		    log.severe("Fehler beim Senden einer Nachricht!");
 		    c.forceShutdown();
@@ -99,6 +108,7 @@ public class MavClient extends Thread {
 		    String inJson;
 		    try {
 				inJson = reader.readLine();										// Convention: Eine Nachricht steht immer in einer Zeile!
+				
 				m_sockets.mavMessageReceived(inJson);							// Den JSONWebSockets informieren, damit er die Nachricht weiterleitet
 		    } catch (IOException e) {
 		    	log.severe("Konnte nicht von MavServer lesen.");
