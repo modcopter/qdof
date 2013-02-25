@@ -29,7 +29,7 @@ public class SerialConnection {
 	private TcpServer _server;
 	
 	public static List<String> getPorts() {
-		List<String> retval = new ArrayList<>();
+		List<String> retval = new ArrayList<String>();
 		Enumeration<?> ports = CommPortIdentifier.getPortIdentifiers();
 		//
 		while (ports.hasMoreElements()) {
@@ -43,7 +43,7 @@ public class SerialConnection {
 	}
 	
 	public static List<CommPortIdentifier> getPortIDs() {
-		List<CommPortIdentifier> retval = new ArrayList<>();
+		List<CommPortIdentifier> retval = new ArrayList<CommPortIdentifier>();
 		Enumeration<?> ports = CommPortIdentifier.getPortIdentifiers();
 		//
 		while (ports.hasMoreElements()) {
@@ -132,7 +132,7 @@ public class SerialConnection {
 				//
 				String json = gson.toJson(pjo);
 				
-				_server.send(json);
+				_server.sendData(json);
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}
