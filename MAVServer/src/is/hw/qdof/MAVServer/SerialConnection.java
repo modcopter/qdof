@@ -7,7 +7,6 @@ import gnu.io.SerialPortEvent;
 import gnu.io.SerialPortEventListener;
 import gnu.io.UnsupportedCommOperationException;
 import is.hw.qdof.MAVServer.Messages.Attitude;
-import is.hw.qdof.MAVServer.Messages.AttitudeOrBuilder;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,8 +18,12 @@ import java.util.TooManyListenersException;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.protobuf.ProtoTypeAdapter;
+import com.google.gson.stream.JsonWriter;
 import com.google.protobuf.GeneratedMessage;
-import com.google.protobuf.MessageOrBuilder;
 
 public class SerialConnection {
 	private CommPortIdentifier _basePortID;
@@ -117,14 +120,17 @@ public class SerialConnection {
 			//
 			try {
 				Attitude att = Attitude.parseDelimitedFrom(_istream);
+				//				
+				Gson gson = new GsonBuilder().registerTypeHierarchyAdapter(
+			      GeneratedMessage.class, new ProtoTypeAdapter()).create();
+				
+				JsonElement content = gson.toJsonTree(att);
+				JsonElement msgId = new JsonPrimitive(att.getClass().getName());
 				//
-				Gson gson = new GsonBuilder()
-								.registerTypeAdapterFactory(new MessageTypeFactory())
-								.create();
+				
 				//
-				//System.out.println(gson.toJson(att));
+				System.out.println(g);
 				//
-				gson.fromJson(gson.toJson(att), Attitude.class);
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}
