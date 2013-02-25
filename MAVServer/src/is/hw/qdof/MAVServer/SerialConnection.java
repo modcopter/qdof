@@ -18,17 +18,15 @@ import java.util.TooManyListenersException;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import com.google.gson.protobuf.ProtoTypeAdapter;
-import com.google.gson.stream.JsonWriter;
 import com.google.protobuf.GeneratedMessage;
 
 public class SerialConnection {
 	private CommPortIdentifier _basePortID;
 	private SerialPort _basePort;
 	private int _baud;
+	private TcpServer _server;
 	
 	public static List<String> getPorts() {
 		List<String> retval = new ArrayList<>();
@@ -58,7 +56,7 @@ public class SerialConnection {
 		return retval;
 	}
 	
-	public SerialConnection(String portname) throws IOException {
+	public SerialConnection(String portname, TcpServer server) throws IOException {
 		List<CommPortIdentifier> ports = getPortIDs();
 		//
 		for (CommPortIdentifier id : ports) {
@@ -70,6 +68,8 @@ public class SerialConnection {
 		//
 		if (_basePortID == null)
 			throw new IOException("Port " + portname + " not found!");
+		//
+		_server = server;
 	}
 	
 	public void setBaudRate(int baud) throws NullPointerException {
@@ -124,13 +124,15 @@ public class SerialConnection {
 				Gson gson = new GsonBuilder().registerTypeHierarchyAdapter(
 			      GeneratedMessage.class, new ProtoTypeAdapter()).create();
 				
-				JsonElement content = gson.toJsonTree(att);
-				JsonElement msgId = new JsonPrimitive(att.getClass().getName());
-				//
+				JsonObject content = gson.toJsonTree(att).getAsJsonObject();
 				
+				ProtoJsonObject pjo = new ProtoJsonObject();
+				pjo.content = content;
+				pjo.msgId = att.getClass().getSimpleName();
 				//
-				System.out.println(g);
-				//
+				String json = gson.toJson(pjo);
+				
+				_server.send(json);
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}
