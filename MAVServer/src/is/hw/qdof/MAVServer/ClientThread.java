@@ -59,7 +59,6 @@ public class ClientThread extends Thread {
 				//
 			} catch (Exception e) {
 				e.printStackTrace();
-				break;
 			}
 		}
 		//

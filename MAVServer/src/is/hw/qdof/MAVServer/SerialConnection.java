@@ -11,15 +11,21 @@ import is.hw.qdof.MAVServer.Messages.Attitude;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.TooManyListenersException;
+import java.util.logging.Logger;
+
+import javax.xml.ws.spi.Invoker;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.protobuf.ProtoTypeAdapter;
+import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.GeneratedMessage;
 
 public class SerialConnection {
@@ -118,23 +124,52 @@ public class SerialConnection {
 			if (e.getEventType() != SerialPortEvent.DATA_AVAILABLE)
 				return;
 			//
-			try {
-				Attitude att = Attitude.parseDelimitedFrom(_istream);
+			/*try {
+				DynamicMessage msg = DynamicMessage.parseFrom(Attitude.getDescriptor(), _istream);
 				//				
 				Gson gson = new GsonBuilder().registerTypeHierarchyAdapter(
 			      GeneratedMessage.class, new ProtoTypeAdapter()).create();
 				
-				JsonObject content = gson.toJsonTree(att).getAsJsonObject();
+				JsonObject content = gson.toJsonTree(msg).getAsJsonObject();
 				
 				ProtoJsonObject pjo = new ProtoJsonObject();
 				pjo.content = content;
-				pjo.msgId = att.getClass().getSimpleName();
+				pjo.msgId = msg.getClass().getSimpleName();
 				//
 				String json = gson.toJson(pjo);
-				
 				_server.sendData(json);
 			} catch (Exception e1) {
 				e1.printStackTrace();
+			}*/
+			for (Class<?> subclass : Messages.class.getClasses()) {
+				try {
+					Method meth = subclass.getMethod("parseDelimitedFrom", InputStream.class);
+					Object msg = meth.invoke(null, _istream);
+					//
+					if (msg == null) {
+						continue;
+					}
+					//
+					Gson gson = new GsonBuilder().registerTypeHierarchyAdapter(
+							GeneratedMessage.class, new ProtoTypeAdapter()).create();
+					
+					JsonObject content = gson.toJsonTree(msg).getAsJsonObject();
+					
+					ProtoJsonObject pjo = new ProtoJsonObject();
+					pjo.content = content;
+					pjo.msgId = msg.getClass().getSimpleName();
+					//
+					String json = gson.toJson(pjo);
+					_server.sendData(json);
+					System.out.println(json);
+				} catch (NoSuchMethodException ex) {
+					// Die Klasse ist wahrscheinlich keine Message, hat kein "parseDelimitedFrom"
+				} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+					// Exceptions beim Parsen der Nachricht
+				} catch (Exception ex) {
+					// Etwas anderes = Unbekannt = Schlecht!
+					ex.printStackTrace();
+				}
 			}
 		}
 	}
