@@ -14,7 +14,7 @@ import org.webbitserver.WebServer;
 import org.webbitserver.WebServers;
 
 public class Controller {
-	private final Logger log = Logger.getLogger("is.hw.qdof"); //Logger für ganzes Paket
+	private final Logger log = Logger.getLogger("is.hw.qdof"); //Logger fï¿½r ganzes Paket
 	private int webSocketPort = 8080; //Standardport 8080
 	private String mavServerAdress; //Keine Standardadresse
 	private int mavServerPort = 58147; //
@@ -73,7 +73,7 @@ public class Controller {
 			this.forceShutdown();
 		}
 		
-		CommandListenerThread c = new CommandListenerThread(this);
+		CommandListenerThread c = new CommandListenerThread(this, webSockets);
 		
 		c.start();
 		

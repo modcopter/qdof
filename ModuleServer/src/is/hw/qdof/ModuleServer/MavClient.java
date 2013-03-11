@@ -66,7 +66,6 @@ public class MavClient extends Thread {
      *            Eine JSON-Encodierte MAVLink Nachricht
      */
     public void sendMessage(String json) {
-    	log.info(json);
 		try {
 			PrintWriter printer = new PrintWriter(m_clientSocket.getOutputStream(), true);
 			Gson formatter = new Gson();

@@ -25,9 +25,10 @@ public class TcpServer {
 		while (true) {
 			Socket clientSock = serverSock.accept();
 			Logger.getLogger(this.getClass().getName()).info("Client " + clientSock.getRemoteSocketAddress().toString() + " connected!");
-			ClientThread thread = new ClientThread(clientSock, this, serCon);
-			clientList.add(thread);
-			thread.run();
+			ClientThread client = new ClientThread(clientSock, this, serCon);
+			Thread thread = new Thread(client);
+			clientList.add(client);
+			thread.start();
 		}
 	}
 	

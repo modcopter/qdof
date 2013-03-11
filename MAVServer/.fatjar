@@ -1,0 +1,14 @@
+#Fat Jar Configuration File
+#Mon Mar 11 15:18:36 CET 2013
+onejar.license.required=false
+manifest.classpath=
+manifest.removesigners=true
+onejar.checkbox=true
+jarname=/home/leonhard/Arbeitsfl\u00E4che/ModMavServ/mavServ.jar
+manifest.mergeall=true
+manifest.mainclass=is.hw.qdof.MAVServer.Controller
+manifest.file=<createnew>
+jarname.isextern=true
+onejar.expand=librxtxSerial.so
+excludes=
+includes=

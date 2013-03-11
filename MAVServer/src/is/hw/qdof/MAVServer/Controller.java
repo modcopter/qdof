@@ -1,7 +1,5 @@
 package is.hw.qdof.MAVServer;
 
-import is.hw.qdof.MAVServer.Messages.Attitude;
-
 import java.io.IOException;
 import java.util.logging.Logger;
 

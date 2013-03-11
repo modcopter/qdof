@@ -1,24 +1,19 @@
 package is.hw.qdof.MAVServer;
 
-import is.hw.qdof.MAVServer.Messages.Attitude;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.logging.Logger;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.protobuf.ProtoTypeAdapter;
-import com.google.protobuf.AbstractMessageLite;
-import com.google.protobuf.DynamicMessage;
 import com.google.protobuf.GeneratedMessage;
 import com.google.protobuf.Message;
 
-public class ClientThread extends Thread {
+public class ClientThread implements Runnable {
 	private Socket sock;
 	private TcpServer server;
 	private PrintWriter writer;
@@ -58,7 +53,7 @@ public class ClientThread extends Thread {
 				//message.writeDelimitedTo(serCon.getOutputStream());
 				//
 			} catch (Exception e) {
-				e.printStackTrace();
+				//e.printStackTrace();
 			}
 		}
 		//

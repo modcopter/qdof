@@ -12,7 +12,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
 public class JSONWebSockets extends BaseWebSocketHandler {
-	private ArrayList<WebSocketConnection> connections = new ArrayList<WebSocketConnection>();
+	protected ArrayList<WebSocketConnection> connections = new ArrayList<WebSocketConnection>();
 	private HashMap<WebSocketConnection, ArrayList<String>> hm = new HashMap<WebSocketConnection, ArrayList<String>>();
 	private MavClient mClient;
 	private final Logger log = Logger.getLogger(this.getClass().getName());
@@ -114,5 +114,14 @@ public class JSONWebSockets extends BaseWebSocketHandler {
     	} else {
     		log.warning("Unsubscribe fehlgeschlagen. Client existierte nicht.");
     	}
+    }
+    
+    public boolean kickClient(int id) {
+    	WebSocketConnection client = connections.get(id);
+    	
+    	if(client==null) return false;
+    	
+    	client.close();
+    	return true;
     }
 }
