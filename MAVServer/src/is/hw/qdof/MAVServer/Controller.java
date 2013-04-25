@@ -1,5 +1,8 @@
 package is.hw.qdof.MAVServer;
 
+import is.hw.qdof.MAVServer.Message.MessageDefinitionFile;
+
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.logging.Logger;
 
@@ -7,14 +10,18 @@ import java.util.logging.Logger;
 public class Controller {
 	private SerialConnection serCon;
 	private TcpServer tcpServ = new TcpServer(58147);
+	private MessageDefinitionFile msgDef;
 	
 	public Logger log = Logger.getLogger(this.getClass().getName());
 	
+	public static Controller instance;
+	
 	public static void main(String args[]) {
-		new Controller(args);
+		Controller.instance = new Controller();
+		Controller.instance.run(args);
 	}
 	
-	public Controller(String args[]) {
+	public void run(String args[]) {
 		if (args.length < 1) {
 			log.severe("Too few arguments!");
 			log.severe("Expected at least 1, none was given!");
@@ -28,6 +35,13 @@ public class Controller {
 			log.severe("Serial port " + args[0] + " not found.");
 			log.severe("Terminating.");
 			System.exit(-1);
+		}
+		
+		try {
+			msgDef = MessageDefinitionFile.load("messages.json");
+		} catch (FileNotFoundException e1) {
+			e1.printStackTrace();
+			System.exit(1);
 		}
 		//
 		serCon.setBaudRate(19200);
@@ -47,5 +61,9 @@ public class Controller {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public MessageDefinitionFile getDefinitionFile() {
+		return msgDef;
 	}
 }

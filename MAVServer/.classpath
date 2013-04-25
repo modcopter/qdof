@@ -3,7 +3,6 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="lib/native"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
-	<classpathentry kind="lib" path="lib/protobuf-java-2.5.0rc1.jar" sourcepath="D:/Programme/cygwin/home/Simon/protobuf-2.5.0rc1/java/src/main/java"/>
 	<classpathentry kind="lib" path="lib/gson-2.2.2.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:platform:/resource/MAVServer/lib/gson-2.2.2-javadoc.jar!/"/>

@@ -1,0 +1,17 @@
+{
+	messages: {
+		"5": {
+			name: "test",
+			fields: [
+				{
+					name: "feld1",
+					type: "byte"
+				},
+				{
+					name: "feld2",
+					type: "byte"
+				}
+			]
+		}
+	}
+}

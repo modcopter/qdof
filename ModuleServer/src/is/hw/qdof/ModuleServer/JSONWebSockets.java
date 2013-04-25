@@ -2,6 +2,7 @@ package is.hw.qdof.ModuleServer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -9,7 +10,10 @@ import org.webbitserver.BaseWebSocketHandler;
 import org.webbitserver.WebSocketConnection;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
+import com.google.gson.reflect.TypeToken;
 
 public class JSONWebSockets extends BaseWebSocketHandler {
 	protected ArrayList<WebSocketConnection> connections = new ArrayList<WebSocketConnection>();
@@ -31,14 +35,15 @@ public class JSONWebSockets extends BaseWebSocketHandler {
     }
 
     public void onMessage(WebSocketConnection connection, String message) {
-    	JsonMessage msg = gson.fromJson(message, JsonMessage.class);
+    	//JsonMessage msg = gson.fromJson(message, JsonMessage.class);
+    	JsonParser parser = new JsonParser();
+    	JsonObject msg = parser.parse(message).getAsJsonObject();
 
-    	boolean isSub = msg.msgId.equals("sub");
-		boolean isUnsub = msg.msgId.equals("unsub");
+    	boolean isSub = msg.get("id").getAsString().equals("sub");
+		boolean isUnsub = msg.get("id").getAsString().equals("unsub");
 		
-		if(isSub||isUnsub && msg.content instanceof ArrayList<?>) {
-			@SuppressWarnings("unchecked")
-			ArrayList<String> msgIds = (ArrayList<String>) msg.content;
+		if(isSub||isUnsub && msg.get("content").isJsonArray()) {
+			ArrayList<String> msgIds = (new Gson()).fromJson(msg.get("content").getAsJsonArray(), new TypeToken<List<String>>(){}.getType());
 			//
     		for(String s: msgIds) {
     			if(isSub) {
@@ -62,11 +67,13 @@ public class JSONWebSockets extends BaseWebSocketHandler {
     
     public void mavMessageReceived(String json) {
     	String msgId = null;
-    	JsonMessage msg;
     	//
     	try {
-    		msg = gson.fromJson(json, JsonMessage.class);
-    		msgId = msg.msgId;
+    		//msg = gson.fromJson(json, JsonMessage.class);
+    		JsonParser parser = new JsonParser();
+    		JsonObject o = (JsonObject) parser.parse(json);
+    		//
+    		msgId = o.get("id").getAsString();
     	} catch(JsonSyntaxException ex) {
     		log.warning("JSON-Syntax ist fehlerhaft. "+ex.getMessage());
     		return;

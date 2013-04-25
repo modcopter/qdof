@@ -10,18 +10,14 @@ import gnu.io.UnsupportedCommOperationException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.TooManyListenersException;
+import java.util.logging.Logger;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-import com.google.gson.protobuf.ProtoTypeAdapter;
-import com.google.protobuf.GeneratedMessage;
 
 public class SerialConnection {
 	private CommPortIdentifier _basePortID;
@@ -119,34 +115,18 @@ public class SerialConnection {
 			if (e.getEventType() != SerialPortEvent.DATA_AVAILABLE)
 				return;
 			//
-			for (Class<?> subclass : Messages.class.getClasses()) {
-				try {
-					Method meth = subclass.getMethod("parseDelimitedFrom", InputStream.class);
-					Object msg = meth.invoke(null, _istream);
-					//
-					if (msg == null) {
-						continue;
-					}
-					//
-					Gson gson = new GsonBuilder().registerTypeHierarchyAdapter(
-							GeneratedMessage.class, new ProtoTypeAdapter()).create();
-					
-					JsonObject content = gson.toJsonTree(msg).getAsJsonObject();
-					
-					ProtoJsonObject pjo = new ProtoJsonObject();
-					pjo.content = content;
-					pjo.msgId = msg.getClass().getSimpleName();
-					//
-					String json = gson.toJson(pjo);
-					_server.sendData(json);
-				} catch (NoSuchMethodException ex) {
-					// Die Klasse ist wahrscheinlich keine Message, hat kein "parseDelimitedFrom"
-				} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-					// Exceptions beim Parsen der Nachricht
-				} catch (Exception ex) {
-					// Etwas anderes = Unbekannt = Schlecht!
-					ex.printStackTrace();
-				}
+			try {
+				Message msg = Message.parse(_istream);
+				//
+				Gson gson = new GsonBuilder()
+						.registerTypeAdapter(Message.class, msg.new MessageJsonConverter(Controller.instance.getDefinitionFile()))
+						.create();
+				//
+				String json = gson.toJson(msg);
+				_server.sendData(json);
+				System.out.println(json);
+			} catch (Exception ex) {
+				ex.printStackTrace();
 			}
 		}
 	}
